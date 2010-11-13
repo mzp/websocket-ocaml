@@ -1,0 +1,11 @@
+*.cm[ioxa]
+*.cmax
+*.omc
+*.o
+*~
+.omakedb
+.omakedb.lock
+runner
+main
+*.opt
+*.run

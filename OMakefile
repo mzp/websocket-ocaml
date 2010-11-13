@@ -1,0 +1,47 @@
+.PHONY: all check install clean
+
+.SUBDIRS:
+
+USE_OCAMLFIND = true
+OCAMLPACKS[] =
+	oUnit
+	extlib
+
+if $(not $(OCAMLFIND_EXISTS))
+    eprintln(This project requires ocamlfind, but is was not found.)
+    eprintln(You need to install ocamlfind and run "omake --configure".)
+    exit 1
+
+NATIVE_ENABLED = $(OCAMLOPT_EXISTS)
+BYTE_ENABLED = $(not $(OCAMLOPT_EXISTS))
+
+OCAMLFLAGS    +=
+OCAMLCFLAGS   +=
+OCAMLOPTFLAGS +=
+OCAML_LINK_FLAGS +=
+OCAML_BYTE_LINK_FLAGS +=
+OCAML_NATIVE_LINK_FLAGS +=
+
+FILES[] =
+	base
+	hList
+	main
+	mainTest
+
+TEST_FILES[] =
+	mainTest
+
+PROGRAM = main
+TEST_PROGRAM = runner
+OCAML_LIBS +=
+OCAML_CLIBS +=
+OCAML_OTHER_LIBS +=
+OCAML_LIB_FLAGS +=
+
+.DEFAULT : all
+all: $(OCamlProgram $(PROGRAM), $(FILES))
+check : $(OCamlProgram $(TEST_PROGRAM), $(TEST_FILES) $(FILES))
+	./$(TEST_PROGRAM)
+
+clean:
+	rm -f $(PROGRAM) $(TEST_PROGRAM) *.cm[iox] *.opt *.run *~ *.out *.o
