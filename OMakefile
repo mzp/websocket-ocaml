@@ -27,11 +27,9 @@ OCAML_NATIVE_LINK_FLAGS +=
 FILES[] =
 	base
 	hList
-	main
 	server
 
 TEST_FILES[] =
-	mainTest
 
 PROGRAM = main
 TEST_PROGRAM = runner
@@ -41,7 +39,7 @@ OCAML_OTHER_LIBS +=
 OCAML_LIB_FLAGS +=
 
 .DEFAULT : all
-all: $(OCamlProgram $(PROGRAM), $(FILES))
+all: $(OCamlProgram $(PROGRAM), main $(FILES))
 check : $(OCamlProgram $(TEST_PROGRAM), $(TEST_FILES) $(FILES))
 	./$(TEST_PROGRAM)
 
