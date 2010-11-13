@@ -1,0 +1,5 @@
+#!/bin/sh
+git remote rm private
+git remote rm hudson
+git remote add private ssh://eva-lu-ator.net/home/mzp/git/websocket-ocaml.git
+git remote add hudson  ssh://eva-lu-ator.net/var/git/websocket-ocaml.git
