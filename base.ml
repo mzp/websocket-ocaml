@@ -21,10 +21,12 @@ let maybe  f x = try `Val (f x) with e -> `Error e
 let tee f x = try ignore @@ f x; x with _ -> x
 
 type ('a,'b) either = Left of 'a | Right of 'b
+let left x = Left x
+let right x = Right x
 
 let failwithf fmt = Printf.kprintf (fun s () -> failwith s) fmt
 
-let assoc x xs = (option @@ List.assoc x) xs
+let lookup x xs = (option @@ List.assoc x) xs
 
 let string_of_list xs =
   Printf.sprintf "[%s]"
@@ -126,5 +128,15 @@ let open_in_with path f =
 	`Val v ->  v
       | `Error e -> raise e
 
+let forever f () =
+  while true do
+    f ()
+  done
+
 let undefined =  Obj.magic 42
 let undef     = undefined
+
+let p fmt = Printf.kprintf (fun s () -> print_endline s; flush stdout) fmt
+
+let ret x _ =
+  x
