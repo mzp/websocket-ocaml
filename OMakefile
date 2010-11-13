@@ -28,7 +28,7 @@ FILES[] =
 	base
 	hList
 	main
-	mainTest
+	server
 
 TEST_FILES[] =
 	mainTest

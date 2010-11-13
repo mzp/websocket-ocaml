@@ -1,2 +1,2 @@
-let answer () =
-  42
+let _ =
+  Server.run Server.echo
