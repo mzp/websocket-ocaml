@@ -19,7 +19,7 @@ let socket_with host port f =
     List.hd @@ getaddrinfo host (string_of_int port) [] in
     f s ai_addr
 
-let run t =
-  socket_with "0.0.0.0" 3000 begin fun _ addr ->
+let run t host port =
+  socket_with host port begin fun _ addr ->
     Unix.establish_server (fun i o -> forever (fun _ -> t.on_accept i o) ()) addr
   end

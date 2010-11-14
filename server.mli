@@ -3,4 +3,4 @@ type t = {
 }
 val echo : t
 
-val run : t -> unit
+val run : t -> string -> int -> unit

@@ -29,6 +29,7 @@ FILES[] =
 	hList
 	server
 	logger
+	webSocket
 
 TEST_FILES[] =
 	loggerTest
