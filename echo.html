@@ -1,0 +1,43 @@
+<html>
+    <head>
+        <style type="text/css">
+            .log {
+                color: red;
+            }
+        </style>
+        <script>
+            ws = new WebSocket("ws://localhost:8080");
+            ws.onopen = function (e) {
+                var resultAreaObj = document.getElementById('result');
+                resultAreaObj.innerHTML += '<span class="log">onopen</span>' + '<br>'
+            };
+            ws.onclose = function (e) {
+                var resultAreaObj = document.getElementById('result');
+                resultAreaObj.innerHTML += '<span class="log">onclose</span>' + '<br>'
+            };
+            ws.onmessage = function (e) {
+                var resultAreaObj = document.getElementById('result');
+                resultAreaObj.innerHTML += e.data + '<br>'
+            };
+            ws.onerror = function () {
+                var resultAreaObj = document.getElementById('result');
+                resultAreaObj.innerHTML += '<span class="log">onerror</span>' + '<br>'
+            };
+            send = function () {
+                var textFieldObj = document.getElementById('textField');
+                var data = textFieldObj.value;
+                if (data) {
+                    ws.send(data);
+                    textFieldObj.value = '';
+                }
+            };
+        </script>
+    </head>
+    <body>
+        <input type='text' id='textField'/>
+        <button onclick='send();'>send</button><br>
+        <button onclick='ws.close();'>close</button>
+        <hr>
+        <div id='result'></div>
+    </body>
+</html>
