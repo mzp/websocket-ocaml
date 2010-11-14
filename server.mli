@@ -1,5 +1,5 @@
 type t = {
-  on_accept : in_channel -> out_channel -> unit
+  handle : in_channel -> out_channel -> unit
 }
 val echo : t
 

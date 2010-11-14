@@ -2,15 +2,15 @@ open Base
 open Unix
 
 type t = {
-  on_accept : in_channel -> out_channel -> unit
+  handle : in_channel -> out_channel -> unit
 }
 
-let echo = {
-  on_accept = fun input output ->
+let echo =
+  let handle input output =
     output_string output @@ input_line input;
     output_string output "\n";
-    flush output
-}
+    flush output in
+    { handle }
 
 let socket_with host port f =
   let s =
@@ -21,5 +21,5 @@ let socket_with host port f =
 
 let run t host port =
   socket_with host port begin fun _ addr ->
-    Unix.establish_server (fun i o -> forever (fun _ -> t.on_accept i o) ()) addr
+    Unix.establish_server (fun i o -> forever (fun _ -> t.handle i o) ()) addr
   end
