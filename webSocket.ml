@@ -1,5 +1,8 @@
 open Base
 open ExtString
+open Big_int
+open BigIntUtil
+
 type request = {
   method_ : string;
   path    : string;
@@ -32,11 +35,36 @@ let input_nbytes n ch =
     really_input ch buf 0 n;
     buf
 
+let is_num = function
+    '0'..'9' -> true
+  | _ -> false
+
+let is_space c =
+  c = ' '
+
+let decode_key s =
+  let xs =
+    String.explode s in
+  let num =
+    List.filter is_num xs
+    +> String.implode
+    +> big_int_of_string in
+  let spaces =
+    List.filter is_space xs
+    +> List.length
+    +> big_int in
+    BigIntOp.( num / spaces)
+
 let handshake ~key1 ~key2 ~key3 =
-  ignore key1;
-  ignore key2;
-  ignore key3;
-  assert false
+  String.concat "" [
+    pack ~n:4 @@ decode_key key1;
+    pack ~n:4 @@ decode_key key2;
+    key3
+  ]
+  +> Digest.string
+
+
+
 
 let handle input _output =
   let request =
