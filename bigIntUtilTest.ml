@@ -8,7 +8,6 @@ let _ = begin "bigNumUtil.ml" >::: [
     assert_equal ~printer:Std.dump "\000" @@ to_string ~n:1 (big_int 0);
     assert_equal ~printer:Std.dump "\000\000" @@ to_string ~n:2 (big_int 0);
     assert_equal ~printer:Std.dump "\000\000\001\001" @@ to_string ~n:4 (big_int 257);
-
   end;
   "四則演算を持ってる" >:: begin fun () ->
     let open BigIntOp in
