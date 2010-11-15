@@ -6,6 +6,7 @@ USE_OCAMLFIND = true
 OCAMLPACKS[] =
 	oUnit
 	extlib
+	num
 
 if $(not $(OCAMLFIND_EXISTS))
     eprintln('This project requires ocamlfind, but is was not found.')
@@ -30,9 +31,11 @@ FILES[] =
 	server
 	logger
 	webSocket
+	bigIntUtil
 
 TEST_FILES[] =
 	loggerTest
+	bigIntUtilTest
 
 PROGRAM = main
 TEST_PROGRAM = runner
