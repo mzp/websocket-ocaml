@@ -1,4 +1,6 @@
+open Base
 open Big_int
+open ExtString
 
 module BigIntOp = struct
   let (+)   = add_big_int
@@ -6,10 +8,24 @@ module BigIntOp = struct
   let ( * ) = mult_big_int
   let (/)   = div_big_int
   let (=)   = eq_big_int
+  let (<)   = lt_big_int
+  let (>)   = gt_big_int
+  let (<=)  = le_big_int
+  let (>=)  = ge_big_int
 end
 
 let big_int =
   big_int_of_int
 
-let to_string ~n _ = ignore n; assert false
+let big_endian w bi =
+  range 0 w
+  +> List.map (( * ) 8)
+  +> List.map (fun m -> extract_big_int bi m 8)
+  +> List.map int_of_big_int
+  +> List.rev
 
+
+let to_string ~n bi =
+  big_endian n bi
+  +> List.map Char.chr
+  +> String.implode
