@@ -32,7 +32,11 @@ let input_nbytes n ch =
     really_input ch buf 0 n;
     buf
 
-let handshake _ = assert false
+let handshake ~key1 ~key2 ~key3 =
+  ignore key1;
+  ignore key2;
+  ignore key3;
+  assert false
 
 let handle input _output =
   let request =

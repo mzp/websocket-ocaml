@@ -8,4 +8,4 @@ type request = {
   body    : string
 }
 
-val handshake : request -> string
+val handshake : key1:string -> key2:string -> key3:string -> string
