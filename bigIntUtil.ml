@@ -24,8 +24,14 @@ let big_endian w bi =
   +> List.map int_of_big_int
   +> List.rev
 
-
-let to_string ~n bi =
+let pack ~n bi =
   big_endian n bi
   +> List.map Char.chr
   +> String.implode
+
+let unpack str =
+  str
+  +> String.explode
+  +> List.map Char.code
+  +> List.map big_int
+  +> List.fold_left (fun x y -> BigIntOp.(shift_left_big_int x 8 + y)) (big_int 0)

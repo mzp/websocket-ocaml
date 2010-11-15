@@ -5,9 +5,15 @@ open BigIntUtil
 
 let _ = begin "bigNumUtil.ml" >::: [
   "BigEndianで文字列に変換できる" >:: begin fun () ->
-    assert_equal ~printer:Std.dump "\000" @@ to_string ~n:1 (big_int 0);
-    assert_equal ~printer:Std.dump "\000\000" @@ to_string ~n:2 (big_int 0);
-    assert_equal ~printer:Std.dump "\000\000\001\001" @@ to_string ~n:4 (big_int 257);
+    assert_equal ~printer:Std.dump "\000" @@ pack ~n:1 (big_int 0);
+    assert_equal ~printer:Std.dump "\000\000" @@ pack ~n:2 (big_int 0);
+    assert_equal ~printer:Std.dump "\000\000\001\001" @@ pack ~n:4 (big_int 257);
+  end;
+  "文字列からBig_intに変換できる" >:: begin fun () ->
+    let open BigIntOp in
+      "1 byte"  @? (big_int 0 = unpack "\000");
+      "2 bytes" @? (big_int 1 = unpack "\000\001");
+      "4 bytes" @? (big_int 257 = unpack "\000\000\001\001");
   end;
   "四則演算を持ってる" >:: begin fun () ->
     let open BigIntOp in

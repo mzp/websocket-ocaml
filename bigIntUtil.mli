@@ -7,5 +7,6 @@ module BigIntOp : sig
 end
 
 val big_int : int -> Big_int.big_int
-val to_string : n:int -> Big_int.big_int -> string
+val pack : n:int -> Big_int.big_int -> string
+val unpack : string -> Big_int.big_int
 
