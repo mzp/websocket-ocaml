@@ -36,6 +36,7 @@ FILES[] =
 TEST_FILES[] =
 	loggerTest
 	bigIntUtilTest
+	webSocketTest
 
 PROGRAM = main
 TEST_PROGRAM = runner

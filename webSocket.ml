@@ -32,6 +32,8 @@ let input_nbytes n ch =
     really_input ch buf 0 n;
     buf
 
+let handshake _ = assert false
+
 let handle input _output =
   let request =
     parse_request begin fun () ->
