@@ -77,6 +77,17 @@ let response request =
       ~key3:request.body
   ]
 
+type frame =
+    Text of string
+  | Binary of string
+  | ClosingFrame
+
+let read_frame = parser
+    [< '\x00' = Stream.next; xs = Parsec.until '\xFF'>] ->
+      Text (String.implode xs)
+  | [<>] ->
+      Parsec.fail ()
+
 let handle input output =
   let request =
     parse_request begin fun () ->
@@ -93,7 +104,12 @@ let handle input output =
     +> output_string output in
   let _ =
     flush output in
-    Logger.debug @@ Std.dump @@ input_nbytes 1 input
+  let s =
+    Stream.of_channel input in
+    while true do
+      Logger.debug @@ Std.dump @@ read_frame s
+    done
+
 
 let server =
   let open Server in

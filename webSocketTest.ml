@@ -12,6 +12,11 @@ let _ = begin "webSocket.ml" >::: [
     let key3 =
       "Tm[K T2u" in
       assert_equal "fQJ,fN/4F4!~K~MH" @@ handshake ~key1 ~key2 ~key3
+  end;
+  "read frame" >:: begin fun () ->
+    let s =
+      Stream.of_string "\000hogehoge\xFF" in
+      assert_equal (Text "hogehoge") @@ read_frame s
   end
 ] end +> run_test_tt_main
 

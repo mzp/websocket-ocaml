@@ -16,6 +16,13 @@ if $(not $(OCAMLFIND_EXISTS))
 NATIVE_ENABLED = $(OCAMLOPT_EXISTS)
 BYTE_ENABLED = $(not $(OCAMLOPT_EXISTS))
 
+public.UseCamlp4(files) =
+	protected.CAMLP4CMO = $(addprefix $(ROOT)/camlp4/,$(addsuffix .cmo,$(files)))
+	OCAMLPPFLAGS+=-pp 'camlp4o $(CAMLP4CMO)'
+	OCAMLDEPFLAGS+=-pp 'camlp4o $(CAMLP4CMO)'
+	export
+	.SCANNER: scan-ocaml-%.ml: %.ml $(CAMLP4CMO)
+
 OCAML_WARN_FLAGS=-w A -warn-error A -annot
 OCAMLFLAGS=$`(OCAML_WARN_FLAGS) #`
 OCAMLFLAGS    +=
@@ -32,6 +39,10 @@ FILES[] =
 	logger
 	webSocket
 	bigIntUtil
+	parsec
+
+
+UseCamlp4($(EMPTY))
 
 TEST_FILES[] =
 	loggerTest
