@@ -63,10 +63,21 @@ let handshake ~key1 ~key2 ~key3 =
   ]
   +> Digest.string
 
+let response request =
+  String.concat "\r\n" [
+    "HTTP/1.1 101 WebSocket Protocol Handshake";
+    "Upgrade: WebSocket";
+    "Connection: Upgrade";
+    "Sec-WebSocket-Origin: " ^ List.assoc "Origin" request.fields;
+    "Sec-WebSocket-Location: ws://" ^ List.assoc "Host" request.fields ^ "/";
+    "";
+    handshake
+      ~key1:(List.assoc "Sec-WebSocket-Key1" request.fields)
+      ~key2:(List.assoc "Sec-WebSocket-Key2" request.fields)
+      ~key3:request.body
+  ]
 
-
-
-let handle input _output =
+let handle input output =
   let request =
     parse_request begin fun () ->
       input_line input
@@ -76,7 +87,13 @@ let handle input _output =
     { request with
 	body = input_nbytes 8 input
     } in
-    Logger.debug @@ Std.dump request
+  let _ =
+    response request
+    +> tee Logger.debug
+    +> output_string output in
+  let _ =
+    flush output in
+    Logger.debug @@ Std.dump @@ input_nbytes 1 input
 
 let server =
   let open Server in
