@@ -1,8 +1,8 @@
 open Base
 open OUnit
-open WebSocket
+open Handshake
 
-let _ = begin "webSocket.ml" >::: [
+let _ = begin "handshake.ml" >::: [
   "handshake" >:: begin fun () ->
     (* copy from draft-03 *)
     let key1 =
@@ -11,12 +11,7 @@ let _ = begin "webSocket.ml" >::: [
       "1_ tx7X d  <  nw  334J702) 7]o}` 0" in
     let key3 =
       "Tm[K T2u" in
-      assert_equal "fQJ,fN/4F4!~K~MH" @@ handshake ~key1 ~key2 ~key3
-  end;
-  "read frame" >:: begin fun () ->
-    let s =
-      Stream.of_string "\000hogehoge\xFF" in
-      assert_equal (Text "hogehoge") @@ read_frame s
+      assert_equal "fQJ,fN/4F4!~K~MH" @@ handshake key1 key2 key3
   end
 ] end +> run_test_tt_main
 

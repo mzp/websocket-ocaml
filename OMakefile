@@ -40,6 +40,7 @@ FILES[] =
 	webSocket
 	bigIntUtil
 	parsec
+	handshake
 
 
 UseCamlp4($(EMPTY))
@@ -47,7 +48,7 @@ UseCamlp4($(EMPTY))
 TEST_FILES[] =
 	loggerTest
 	bigIntUtilTest
-	webSocketTest
+	handshakeTest
 
 PROGRAM = main
 TEST_PROGRAM = runner

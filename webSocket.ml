@@ -35,34 +35,6 @@ let input_nbytes n ch =
     really_input ch buf 0 n;
     buf
 
-let is_num = function
-    '0'..'9' -> true
-  | _ -> false
-
-let is_space c =
-  c = ' '
-
-let decode_key s =
-  let xs =
-    String.explode s in
-  let num =
-    List.filter is_num xs
-    +> String.implode
-    +> big_int_of_string in
-  let spaces =
-    List.filter is_space xs
-    +> List.length
-    +> big_int in
-    BigIntOp.( num / spaces)
-
-let handshake ~key1 ~key2 ~key3 =
-  String.concat "" [
-    pack ~n:4 @@ decode_key key1;
-    pack ~n:4 @@ decode_key key2;
-    key3
-  ]
-  +> Digest.string
-
 let response request =
   String.concat "\r\n" [
     "HTTP/1.1 101 WebSocket Protocol Handshake";
@@ -71,10 +43,10 @@ let response request =
     "Sec-WebSocket-Origin: " ^ List.assoc "Origin" request.fields;
     "Sec-WebSocket-Location: ws://" ^ List.assoc "Host" request.fields ^ "/";
     "";
-    handshake
-      ~key1:(List.assoc "Sec-WebSocket-Key1" request.fields)
-      ~key2:(List.assoc "Sec-WebSocket-Key2" request.fields)
-      ~key3:request.body
+    Handshake.handshake
+      (List.assoc "Sec-WebSocket-Key1" request.fields)
+      (List.assoc "Sec-WebSocket-Key2" request.fields)
+      request.body
   ]
 
 type frame =
