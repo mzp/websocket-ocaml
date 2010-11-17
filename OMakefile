@@ -41,6 +41,7 @@ FILES[] =
 	bigIntUtil
 	parsec
 	handshake
+	frame
 
 
 UseCamlp4($(EMPTY))
@@ -49,6 +50,7 @@ TEST_FILES[] =
 	loggerTest
 	bigIntUtilTest
 	handshakeTest
+	frameTest
 
 PROGRAM = main
 TEST_PROGRAM = runner

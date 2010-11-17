@@ -1,7 +1,5 @@
 open Base
 open ExtString
-open Big_int
-open BigIntUtil
 
 type request = {
   method_ : string;
@@ -49,24 +47,6 @@ let response request =
       request.body
   ]
 
-type frame =
-    Text of string
-  | Binary of string
-  | ClosingFrame
-
-let rec read_frame s =
-  match s with parser
-      [< '\x00' = Stream.next; xs = Parsec.until '\xFF'>] ->
-	Text (String.implode xs)
-    | [< >] ->
-	read_frame s
-
-let make_frame = function
-    Text s ->
-      Printf.sprintf "\x00%s\xFF" s
-  | Binary _ | ClosingFrame ->
-      failwith "not yet"
-
 let send ch s =
   output_string ch s;
   flush ch
@@ -89,12 +69,10 @@ let handle input output =
     Stream.of_channel input in
     while true do
       try
-	match read_frame s with
-	    Text text ->
-	      Logger.debug (Std.dump text);
-	      send output (make_frame (Text text))
-	  | Binary _ | ClosingFrame  ->
-	      ()
+	match Frame.unpack s with
+	    (Frame.Text text) as f ->
+	      Logger.debug @@ Std.dump text;
+	      send output @@ Frame.pack f
       with e ->
 	Logger.error (Printexc.to_string e)
     done
