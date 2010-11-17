@@ -89,6 +89,16 @@ let rec read_frame s =
     | [< >] ->
 	read_frame s
 
+let make_frame = function
+    Text s ->
+      Printf.sprintf "\x00%s\xFF" s
+  | Binary _ | ClosingFrame ->
+      failwith "not yet"
+
+let send ch s =
+  output_string ch s;
+  flush ch
+
 let handle input output =
   let request =
     parse_request begin fun () ->
@@ -102,14 +112,17 @@ let handle input output =
   let _ =
     response request
     +> tee Logger.debug
-    +> output_string output in
-  let _ =
-    flush output in
+    +> send output in
   let s =
     Stream.of_channel input in
     while true do
       try
-	Logger.debug @@ Std.dump @@ read_frame s
+	match read_frame s with
+	    Text text ->
+	      Logger.debug (Std.dump text);
+	      send output (make_frame (Text text))
+	  | Binary _ | ClosingFrame  ->
+	      ()
       with e ->
 	Logger.error (Printexc.to_string e)
     done
