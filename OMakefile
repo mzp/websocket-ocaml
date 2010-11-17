@@ -42,6 +42,7 @@ FILES[] =
 	parsec
 	handshake
 	frame
+	httpResponse
 
 
 UseCamlp4($(EMPTY))
@@ -51,6 +52,7 @@ TEST_FILES[] =
 	bigIntUtilTest
 	handshakeTest
 	frameTest
+	httpResponseTest
 
 PROGRAM = main
 TEST_PROGRAM = runner

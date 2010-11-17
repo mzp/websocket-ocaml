@@ -33,19 +33,28 @@ let input_nbytes n ch =
     really_input ch buf 0 n;
     buf
 
-let response request =
-  String.concat "\r\n" [
-    "HTTP/1.1 101 WebSocket Protocol Handshake";
-    "Upgrade: WebSocket";
-    "Connection: Upgrade";
-    "Sec-WebSocket-Origin: " ^ List.assoc "Origin" request.fields;
-    "Sec-WebSocket-Location: ws://" ^ List.assoc "Host" request.fields ^ "/";
-    "";
+let ws_response = {
+  HttpResponse.version = "1.1";
+  status = "101 WebSocket Protocol Handshake";
+  fields = ["Upgrade", "WebSocket";
+	    "Connection", "Upgrade"];
+  body = ""
+}
+
+let response { fields; body; _ } =
+  let origin = [
+    "Sec-WebSocket-Origin" , List.assoc "Origin" fields;
+    "Sec-WebSocket-Location", Printf.sprintf "ws://%s/" @@ List.assoc "Host" fields
+  ] in
+  let handshake =
     Handshake.handshake
-      (List.assoc "Sec-WebSocket-Key1" request.fields)
-      (List.assoc "Sec-WebSocket-Key2" request.fields)
-      request.body
-  ]
+      (List.assoc "Sec-WebSocket-Key1" fields)
+      (List.assoc "Sec-WebSocket-Key2" fields)
+      body in
+    { ws_response with
+	HttpResponse.fields = fields @ origin;
+	body = handshake
+    }
 
 let send ch s =
   output_string ch s;
@@ -63,6 +72,7 @@ let handle input output =
     } in
   let _ =
     response request
+    +> HttpResponse.to_string
     +> tee Logger.debug
     +> send output in
   let s =
