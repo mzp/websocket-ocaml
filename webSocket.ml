@@ -82,11 +82,12 @@ type frame =
   | Binary of string
   | ClosingFrame
 
-let read_frame = parser
-    [< '\x00' = Stream.next; xs = Parsec.until '\xFF'>] ->
-      Text (String.implode xs)
-  | [<>] ->
-      Parsec.fail ()
+let rec read_frame s =
+  match s with parser
+      [< '\x00' = Stream.next; xs = Parsec.until '\xFF'>] ->
+	Text (String.implode xs)
+    | [< >] ->
+	read_frame s
 
 let handle input output =
   let request =
@@ -107,7 +108,10 @@ let handle input output =
   let s =
     Stream.of_channel input in
     while true do
-      Logger.debug @@ Std.dump @@ read_frame s
+      try
+	Logger.debug @@ Std.dump @@ read_frame s
+      with e ->
+	Logger.error (Printexc.to_string e)
     done
 
 
