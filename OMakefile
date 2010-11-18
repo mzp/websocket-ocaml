@@ -44,6 +44,7 @@ FILES[] =
 	frame
 	httpResponse
 	httpRequest
+	echo
 
 
 UseCamlp4($(EMPTY))

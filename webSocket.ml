@@ -44,19 +44,23 @@ let handshake ch stream =
     +> tee Logger.debug
     +> send ch
 
-let handle input output =
+let handle f input output =
   let stream =
     Stream.of_channel input in
-    handshake output stream;
-    while true do
-      try
-	match Frame.unpack stream with
-	    (Frame.Text text) as f ->
-	      Logger.debug @@ Std.dump text;
-	      send output @@ Frame.pack f
-      with e ->
-	Logger.error (Printexc.to_string e)
-    done
+  let obj = object
+    method read =
+      Frame.unpack stream
+      +> tee (fun s -> Logger.debug @@ Printf.sprintf "Read: %s" @@ Std.dump s)
 
-let server =
-  { Server.handle }
+    method send s =
+      Logger.debug @@ Printf.sprintf "Send: %s" (Std.dump s);
+      send output @@ Frame.pack s
+  end in
+    try
+      handshake output stream;
+      f obj
+    with e ->
+      Logger.error (Printexc.to_string e)
+
+let server f =
+  { Server.handle = handle f }
