@@ -1,2 +1,2 @@
-val server : (< read : Frame.t; send : Frame.t -> unit > -> unit) -> Server.t
+val server : (string * ServerDesc.t) list -> Server.t
 

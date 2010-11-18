@@ -1,5 +1,6 @@
 open Base
 open ExtString
+open ServerDesc
 
 let input_nbytes n ch =
   let buf =
@@ -34,9 +35,7 @@ let make_response { HttpRequest.fields; _ } body =
 	body = handshake
     }
 
-let handshake ch stream =
-  let request =
-    HttpRequest.parse stream in
+let handshake ch request stream =
   let body =
     String.implode @@ Stream.npeek 8 stream in
     make_response request body
@@ -44,21 +43,29 @@ let handshake ch stream =
     +> tee Logger.debug
     +> send ch
 
-let handle f input output =
+let dispatch desc output stream request =
+  match List.assoc request.HttpRequest.path desc with
+      Get f ->
+	send output @@ f ()
+    | WebSocket f ->
+	let obj = object
+	  method read =
+	    Frame.unpack stream
+	    +> tee (fun s -> Logger.debug @@ Printf.sprintf "Read: %s" @@ Std.dump s)
+	  method send s =
+	    Logger.debug @@ Printf.sprintf "Send: %s" (Std.dump s);
+	    send output @@ Frame.pack s
+	end in
+	  handshake output request stream;
+	  f obj
+
+let handle desc input output =
   let stream =
     Stream.of_channel input in
-  let obj = object
-    method read =
-      Frame.unpack stream
-      +> tee (fun s -> Logger.debug @@ Printf.sprintf "Read: %s" @@ Std.dump s)
-
-    method send s =
-      Logger.debug @@ Printf.sprintf "Send: %s" (Std.dump s);
-      send output @@ Frame.pack s
-  end in
+  let request =
+    HttpRequest.parse stream in
     try
-      handshake output stream;
-      f obj
+      dispatch desc output stream request
     with e ->
       Logger.error (Printexc.to_string e)
 

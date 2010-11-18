@@ -45,6 +45,7 @@ FILES[] =
 	httpResponse
 	httpRequest
 	echo
+	serverDesc
 
 
 UseCamlp4($(EMPTY))
