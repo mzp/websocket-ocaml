@@ -43,6 +43,7 @@ FILES[] =
 	handshake
 	frame
 	httpResponse
+	httpRequest
 
 
 UseCamlp4($(EMPTY))
@@ -53,6 +54,7 @@ TEST_FILES[] =
 	handshakeTest
 	frameTest
 	httpResponseTest
+	httpRequestTest
 
 PROGRAM = main
 TEST_PROGRAM = runner

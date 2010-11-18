@@ -1,37 +1,15 @@
 open Base
 open ExtString
 
-type request = {
-  method_ : string;
-  path    : string;
-  fields  : (string * string) list;
-  body    : string
-}
-
-let rec parse_fields read =
-  let line =
-    read () in
-    if line = "\r" then
-      []
-    else
-      let (key,value) =
-	String.split line ":" in
-	(String.strip key, String.strip value)::parse_fields read
-
-let parse_request read =
-  match String.nsplit (read ()) " " with
-      [method_; path; _version] ->
-	let fields =
-	  parse_fields read in
-	  { method_; path; fields; body = "" }
-    | _ ->
-	failwith "invalid request"
-
 let input_nbytes n ch =
   let buf =
     String.make n ' ' in
     really_input ch buf 0 n;
     buf
+
+let send ch s =
+  output_string ch s;
+  flush ch
 
 let ws_response = {
   HttpResponse.version = "1.1";
@@ -41,7 +19,7 @@ let ws_response = {
   body = ""
 }
 
-let response { fields; body; _ } =
+let make_response { HttpRequest.fields; _ } body =
   let origin = [
     "Sec-WebSocket-Origin" , List.assoc "Origin" fields;
     "Sec-WebSocket-Location", Printf.sprintf "ws://%s/" @@ List.assoc "Host" fields
@@ -56,30 +34,23 @@ let response { fields; body; _ } =
 	body = handshake
     }
 
-let send ch s =
-  output_string ch s;
-  flush ch
-
-let handle input output =
+let handshake ch stream =
   let request =
-    parse_request begin fun () ->
-      input_line input
-      +> tee Logger.debug
-    end in
-  let request =
-    { request with
-	body = input_nbytes 8 input
-    } in
-  let _ =
-    response request
+    HttpRequest.parse stream in
+  let body =
+    String.implode @@ Stream.npeek 8 stream in
+    make_response request body
     +> HttpResponse.to_string
     +> tee Logger.debug
-    +> send output in
-  let s =
+    +> send ch
+
+let handle input output =
+  let stream =
     Stream.of_channel input in
+    handshake output stream;
     while true do
       try
-	match Frame.unpack s with
+	match Frame.unpack stream with
 	    (Frame.Text text) as f ->
 	      Logger.debug @@ Std.dump text;
 	      send output @@ Frame.pack f
@@ -87,7 +58,5 @@ let handle input output =
 	Logger.error (Printexc.to_string e)
     done
 
-
 let server =
-  let open Server in
-    { handle }
+  { Server.handle }
