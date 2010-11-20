@@ -44,9 +44,9 @@ let handshake ch request stream =
     +> tee Logger.debug
     +> send ch
 
-let dispatch desc output stream ({ HttpRequest.path; _ } as request) =
-  match ServerDesc.dispatch desc path with
-    | None ->
+let dispatch desc output stream ({ HttpRequest.path; method_ = meth; _ } as request) =
+  match ServerDesc.find desc ~meth ~path with
+    | None | Some (Post _) ->
 	send output @@ HttpResponse.to_string {
 	  HttpResponse.version = "1.1";
 	  status = "404 Not Found";

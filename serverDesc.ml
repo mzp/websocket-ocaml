@@ -1,40 +1,71 @@
 open Base
 open ExtList
 
-type ws =
-    < read : Frame.t; send : Frame.t -> unit >
+class type ws = object
+  method read : Frame.t
+  method send : Frame.t -> unit
+end
+
+class type dsl = object
+  method get : string -> (Glob.t -> unit -> string) -> unit
+  method post : string -> (Glob.t -> unit -> string) -> unit
+  method websocket : string -> (Glob.t -> ws -> unit) -> unit
+end
 
 type desc =
-  | WebSocket of (ws -> unit)
-  | Get of (unit -> string)
+  | WebSocket of (ws   -> unit)
+  | Get       of (unit -> string)
+  | Post      of (unit -> string)
 
-type t =
-    (string * (Glob.t -> desc)) list
+type 'a table = (string * (Glob.t -> 'a)) list
 
-let html path =
-  open_in_with path Std.input_all
+type t = {
+  mutable ws   : (ws->unit) table;
+  mutable get  : (unit->string) table;
+  mutable post : (unit->string) table
+}
 
 let server f : t =
   let xs =
-    ref [] in
+    { ws = []; get = []; post = [] } in
   let t =  object
     method websocket path f =
-      xs := (path, fun t -> WebSocket (f t))::!xs
+      xs.ws <- (path,f)::xs.ws
+    method post path f =
+      xs.post <- (path,f)::xs.post
     method get path f =
-      xs := (path, fun t -> Get (f t))::!xs
+      xs.get <- (path,f)::xs.get
   end in
     f t;
-    List.rev !xs
+    xs
 
-let (>>=) x f =
-  match x with
-      None -> None
-    | Some y -> f y
+let match_ f xs =
+  let open Maybe in
+  xs
+  +> List.filter_map begin fun (pat, g) ->
+    f pat >>= (fun t -> return (g, t))
+  end
+  +> function [] -> None | (x::_) -> Some x
 
-let dispatch desc path =
-  match List.filter_map (fun (pat, f) ->
-			   Glob.match_ ~pat path >>= (fun t -> Some (t,f))) desc with
-      (t, f)::_ ->
-	Some (f t)
-    | [] ->
-	None
+let find desc ~meth ~path =
+  let find' wrap table =
+    let open Maybe in
+      match_ (fun pat -> Glob.match_ ~pat path) table
+      >>= (fun (g, t) -> return @@ wrap (g t)) in
+      match meth with
+	| "POST" ->
+	    find' (fun x -> Post x) desc.post
+	| "GET" ->
+	    let ws =
+	      find' (fun x -> WebSocket x) desc.ws in
+	      begin match ws with
+		  Some _ ->
+		    ws
+		| None ->
+		    find' (fun x -> Get x) desc.get
+	      end
+	| _ ->
+	    failwith "unknown method"
+
+let html path =
+  open_in_with path Std.input_all

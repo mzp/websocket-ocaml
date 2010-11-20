@@ -47,6 +47,7 @@ FILES[] =
 	echo
 	serverDesc
 	glob
+	maybe
 
 UseCamlp4($(EMPTY))
 
@@ -58,6 +59,7 @@ TEST_FILES[] =
 	httpResponseTest
 	httpRequestTest
 	globTest
+	serverDescTest
 
 PROGRAM = main
 TEST_PROGRAM = runner
