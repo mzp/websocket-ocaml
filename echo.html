@@ -6,7 +6,7 @@
             }
         </style>
         <script>
-            ws = new WebSocket("ws://localhost:8080");
+            ws = new WebSocket("ws://localhost:8080/echo");
             ws.onopen = function (e) {
                 var resultAreaObj = document.getElementById('result');
                 resultAreaObj.innerHTML += '<span class="log">onopen</span>' + '<br>'

@@ -20,10 +20,10 @@ let ws_response = {
   body = ""
 }
 
-let make_response { HttpRequest.fields; _ } body =
+let make_response { HttpRequest.fields; path; _ } body =
   let origin = [
     "Sec-WebSocket-Origin" , List.assoc "Origin" fields;
-    "Sec-WebSocket-Location", Printf.sprintf "ws://%s/" @@ List.assoc "Host" fields
+    "Sec-WebSocket-Location", Printf.sprintf "ws://%s%s" (List.assoc "Host" fields) path
   ] in
   let handshake =
     Handshake.handshake

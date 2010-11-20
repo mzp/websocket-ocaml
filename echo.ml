@@ -2,7 +2,7 @@ open ServerDesc
 
 let echo =
   server begin fun s ->
-    s#websocket "/" begin fun t ->
+    s#websocket "/echo" begin fun t ->
       while true do
 	t#send t#read
       done

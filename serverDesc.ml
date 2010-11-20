@@ -17,4 +17,4 @@ let server f =
       xs := (path, Get f)::!xs
   end in
     f t;
-    !xs
+    List.rev !xs
