@@ -1,2 +1,1 @@
-val server : (string * ServerDesc.t) list -> Server.t
-
+val server : ServerDesc.t -> Server.t

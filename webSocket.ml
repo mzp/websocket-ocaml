@@ -9,6 +9,7 @@ let input_nbytes n ch =
     buf
 
 let send ch s =
+  Logger.debug s;
   output_string ch s;
   flush ch
 
@@ -43,11 +44,24 @@ let handshake ch request stream =
     +> tee Logger.debug
     +> send ch
 
-let dispatch desc output stream request =
-  match List.assoc request.HttpRequest.path desc with
-      Get f ->
-	send output @@ f ()
-    | WebSocket f ->
+let dispatch desc output stream ({ HttpRequest.path; _ } as request) =
+  match ServerDesc.dispatch desc path with
+    | None ->
+	send output @@ HttpResponse.to_string {
+	  HttpResponse.version = "1.1";
+	  status = "404 Not Found";
+	  fields = ["Connection", "close"];
+	  body = "not found"
+	};
+	close_out output
+    | Some (Get f) ->
+	send output @@ HttpResponse.to_string {
+	  HttpResponse.version = "1.1";
+	  status = "200 OK";
+	  fields = ["Connection", "close"];
+	  body = f ()
+	}
+    | Some (WebSocket f) ->
 	let obj = object
 	  method read =
 	    Frame.unpack stream
@@ -65,9 +79,11 @@ let handle desc input output =
   let request =
     HttpRequest.parse stream in
     try
-      dispatch desc output stream request
+      dispatch desc output stream request;
+      Unix.shutdown_connection input
     with e ->
-      Logger.error (Printexc.to_string e)
+      Logger.error (Printexc.to_string e);
+      Unix.shutdown_connection input
 
 let server f =
   { Server.handle = handle f }
