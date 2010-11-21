@@ -2,9 +2,9 @@ open ServerDesc
 
 let echo =
   server begin fun s ->
-    s#websocket "/echo" begin fun _ t ->
+    s#websocket "/echo" begin fun _ ws ->
       while true do
-	t#send t#read
+	ws#send ws#read
       done
     end;
     s#get "/echo.html" begin fun _ _ ->
