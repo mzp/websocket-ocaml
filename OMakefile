@@ -45,9 +45,11 @@ FILES[] =
 	httpResponse
 	httpRequest
 	echo
-	serverDesc
 	glob
 	maybe
+	getHandler
+	wsHandler
+	dsl
 
 UseCamlp4($(EMPTY))
 
@@ -59,7 +61,6 @@ TEST_FILES[] =
 	httpResponseTest
 	httpRequestTest
 	globTest
-	serverDescTest
 
 PROGRAM = main
 TEST_PROGRAM = runner
