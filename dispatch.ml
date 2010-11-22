@@ -43,5 +43,5 @@ let handle desc input output =
       Logger.error (Printexc.to_string e);
       Unix.shutdown_connection input
 
-let server f =
+let make f =
   { Server.handle = handle f }

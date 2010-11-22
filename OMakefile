@@ -37,7 +37,7 @@ FILES[] =
 	hList
 	server
 	logger
-	webSocket
+	dispatch
 	bigIntUtil
 	parsec
 	handshake
