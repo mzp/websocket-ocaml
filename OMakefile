@@ -45,9 +45,11 @@ FILES[] =
 	httpResponse
 	httpRequest
 	echo
-	serverDesc
 	glob
 	maybe
+	getHandler
+	wsHandler
+	dsl
 
 UseCamlp4($(EMPTY))
 
