@@ -11,3 +11,5 @@ main
 *.run
 *.annot
 echo/echo
+webSocket/doc
+.DS_Store
