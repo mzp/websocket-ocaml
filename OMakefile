@@ -1,21 +1,3 @@
-.PHONY: all check install clean
-
-.SUBDIRS:
-
-USE_OCAMLFIND = true
-OCAMLPACKS[] =
-	oUnit
-	extlib
-	num
-
-if $(not $(OCAMLFIND_EXISTS))
-    eprintln('This project requires ocamlfind, but is was not found.')
-    eprintln('You need to install ocamlfind and run "omake --configure".')
-    exit 1
-
-NATIVE_ENABLED = $(OCAMLOPT_EXISTS)
-BYTE_ENABLED = true
-
 public.UseCamlp4(files) =
 	protected.CAMLP4CMO = $(addprefix $(ROOT)/camlp4/,$(addsuffix .cmo,$(files)))
 	OCAMLPPFLAGS+=-pp 'camlp4o $(CAMLP4CMO)'
@@ -23,56 +5,17 @@ public.UseCamlp4(files) =
 	export
 	.SCANNER: scan-ocaml-%.ml: %.ml $(CAMLP4CMO)
 
+USE_OCAMLFIND = true
+
+if $(not $(OCAMLFIND_EXISTS))
+    eprintln('This project requires ocamlfind, but is was not found.')
+    eprintln('You need to install ocamlfind and run "omake --configure".')
+    exit 1
+
+NATIVE_ENABLED = $(OCAMLOPT_EXISTS)
+BYTE_ENABLED = $(not $(OCAMLOPT_EXISTS))
+
 OCAML_WARN_FLAGS=-w A -warn-error A -annot
 OCAMLFLAGS=$`(OCAML_WARN_FLAGS) #`
-OCAMLFLAGS    +=
-OCAMLCFLAGS   +=
-OCAMLOPTFLAGS +=
-OCAML_LINK_FLAGS +=
-OCAML_BYTE_LINK_FLAGS +=
-OCAML_NATIVE_LINK_FLAGS +=
 
-FILES[] =
-	base
-	hList
-	server
-	logger
-	dispatch
-	bigIntUtil
-	parsec
-	handshake
-	frame
-	httpResponse
-	httpRequest
-	echo
-	glob
-	maybe
-	getHandler
-	wsHandler
-	dsl
-
-UseCamlp4($(EMPTY))
-
-TEST_FILES[] =
-	loggerTest
-	bigIntUtilTest
-	handshakeTest
-	frameTest
-	httpResponseTest
-	httpRequestTest
-	globTest
-
-PROGRAM = main
-TEST_PROGRAM = runner
-OCAML_LIBS +=
-OCAML_CLIBS +=
-OCAML_OTHER_LIBS +=
-OCAML_LIB_FLAGS +=
-
-.DEFAULT : all
-all: $(OCamlProgram $(PROGRAM), main $(FILES))
-check : $(OCamlProgram $(TEST_PROGRAM), $(TEST_FILES) $(FILES))
-	./$(TEST_PROGRAM)
-
-clean:
-	rm -f $(PROGRAM) $(TEST_PROGRAM) *.cm[iox] *.opt *.run *~ *.out *.o
+.SUBDIRS: webSocket echo

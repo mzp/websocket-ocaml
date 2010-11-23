@@ -1,0 +1,65 @@
+.PHONY: all check clean
+
+
+OCAMLPACKS[] =
+	oUnit
+	extlib
+	num
+
+
+OCAMLFLAGS    +=
+OCAMLCFLAGS   +=
+OCAMLOPTFLAGS +=
+OCAML_LINK_FLAGS +=
+OCAML_BYTE_LINK_FLAGS +=
+OCAML_NATIVE_LINK_FLAGS +=
+
+FILES[] =
+	base
+	hList
+	server
+	logger
+	dispatch
+	bigIntUtil
+	parsec
+	handshake
+	frame
+	httpResponse
+	httpRequest
+	glob
+	maybe
+	getHandler
+	wsHandler
+	dsl
+
+UseCamlp4($(EMPTY))
+
+TEST_FILES[] =
+	loggerTest
+	bigIntUtilTest
+	handshakeTest
+	frameTest
+	httpResponseTest
+	httpRequestTest
+	globTest
+
+PROGRAM=webSocket
+TEST_PROGRAM = runner
+OCAML_LIBS +=
+OCAML_CLIBS +=
+OCAML_OTHER_LIBS +=
+OCAML_LIB_FLAGS +=
+
+OCAMLLINK = $(OCAMLC)
+OCAMLOPTLINK = $(OCAMLOPT)
+OCAMLC   += -for-pack $(capitalize $(PROGRAM))
+OCAMLOPT += -for-pack $(capitalize $(PROGRAM))
+
+
+.DEFAULT : all
+all: $(OCamlPackage $(PROGRAM), $(FILES))
+check : $(OCamlProgram $(TEST_PROGRAM), $(TEST_FILES) $(FILES))
+	./$(TEST_PROGRAM)
+
+clean:
+	rm -f $(PROGRAM) $(TEST_PROGRAM) *.cm[iox] *.opt *.run *~ *.out *.o

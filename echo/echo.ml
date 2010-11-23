@@ -1,4 +1,4 @@
-open Dsl
+open WebSocket.Dsl
 
 let echo =
   server begin fun s ->
