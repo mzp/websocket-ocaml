@@ -1,4 +1,4 @@
-.PHONY: all check clean
+.PHONY: all check clean doc
 
 OCAMLPACKS[] =
 	oUnit
@@ -67,11 +67,15 @@ all: $(OCamlPackage $(PROGRAM), $(FILES))
 check : $(OCamlProgram $(TEST_PROGRAM), $(TEST_FILES) $(FILES))
 	./$(TEST_PROGRAM)
 
-doc : webSocket.mli
+
+doc : doc/index.html
+
+doc/index.html: webSocket.mli
 	rm -rf doc
 	mkdir -p doc
-	ocamldoc -d doc -html webSocket.mli
+	ocamldoc -colorize-code -t "OCaml/WebSocket" -d doc -html webSocket.mli
 	./update doc
+
 
 clean:
 	rm -f $(PROGRAM) $(TEST_PROGRAM) *.cm[iox] *.opt *.run *~ *.out *.o *.annot
