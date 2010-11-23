@@ -18,7 +18,7 @@ let server f : t =
 let html path =
   open_in_with path Std.input_all
 
-let find xs path =
+let find (xs : t) path =
   let open Maybe in
   xs
   +> List.filter_map begin fun (pat, g) ->

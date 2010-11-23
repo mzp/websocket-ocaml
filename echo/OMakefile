@@ -16,7 +16,6 @@ OCAMLINCLUDES[] =
 	../webSocket
 
 FILES[] =
-	echo
 	main
 	../webSocket/webSocket
 

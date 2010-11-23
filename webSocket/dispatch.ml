@@ -44,4 +44,4 @@ let handle desc input output =
       Unix.shutdown_connection input
 
 let make f =
-  { Server.handle = handle f }
+  { Socket.handle = handle f }

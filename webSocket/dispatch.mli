@@ -1,1 +1,1 @@
-val make : Dsl.t -> Server.t
+val make : Dsl.t -> Socket.t

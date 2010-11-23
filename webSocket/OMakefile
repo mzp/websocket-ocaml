@@ -1,11 +1,9 @@
 .PHONY: all check clean
 
-
 OCAMLPACKS[] =
 	oUnit
 	extlib
 	num
-
 
 OCAMLFLAGS    +=
 OCAMLCFLAGS   +=
@@ -17,6 +15,7 @@ OCAML_NATIVE_LINK_FLAGS +=
 FILES[] =
 	base
 	hList
+	socket
 	server
 	logger
 	dispatch
@@ -55,11 +54,24 @@ OCAMLOPTLINK = $(OCAMLOPT)
 OCAMLC   += -for-pack $(capitalize $(PROGRAM))
 OCAMLOPT += -for-pack $(capitalize $(PROGRAM))
 
-
 .DEFAULT : all
+
+.SCANNER: scan-ocaml-webSocket.mli : webSocket.mli $(CAMLP4CMO)
+	ocamldep -modules $< | ocamldep-postproc
+
+webSocket.cmi : webSocket.mli :scanner: scan-ocaml-webSocket.mli
+	ocamlc -c $<
+
 all: $(OCamlPackage $(PROGRAM), $(FILES))
+
 check : $(OCamlProgram $(TEST_PROGRAM), $(TEST_FILES) $(FILES))
 	./$(TEST_PROGRAM)
 
+doc : webSocket.mli
+	rm -rf doc
+	mkdir -p doc
+	ocamldoc -d doc -html webSocket.mli
+	./update doc
+
 clean:
-	rm -f $(PROGRAM) $(TEST_PROGRAM) *.cm[iox] *.opt *.run *~ *.out *.o
+	rm -f $(PROGRAM) $(TEST_PROGRAM) *.cm[iox] *.opt *.run *~ *.out *.o *.annot
