@@ -1,0 +1,7 @@
+#!/bin/sh
+
+cd $1
+for i in *.html; do
+    sed 's:iso-8859-1:UTF-8:'  $i > $i.$$
+    mv $i.$$ $i
+done
